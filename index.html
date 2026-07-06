@@ -254,6 +254,33 @@ async function dbCount(){
 }
 function escapeHtml(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
+// ============ LABELS (persisted to localStorage) ============
+function getLabels(type){
+  try { return JSON.parse(localStorage.getItem('toytracker_' + type) || '[]'); }
+  catch(e){ return []; }
+}
+function addLabel(type, name){
+  const list = getLabels(type);
+  if(!list.includes(name)){ list.push(name); list.sort(); }
+  localStorage.setItem('toytracker_' + type, JSON.stringify(list));
+  return list;
+}
+function removeLabel(type, name){
+  const list = getLabels(type).filter(n => n !== name);
+  localStorage.setItem('toytracker_' + type, JSON.stringify(list));
+  return list;
+}
+
+async function refreshTags(){
+  // Merge localStorage labels + DB distinct values
+  const dbWorkers = await getDistinct('worker');
+  const dbToys = await getDistinct('toyType');
+  const workers = [...new Set([...getLabels('worker'), ...dbWorkers])].sort();
+  const toyTypes = [...new Set([...getLabels('toy'), ...dbToys])].sort();
+  renderTagRow('workerTags', workers, 'worker');
+  renderTagRow('toyTags', toyTypes, 'toy');
+}
+
 // ============ TAB 1: 记账 ============
 let selWorker = null, selToy = null;
 const recordDate = document.getElementById('recordDate');
@@ -267,12 +294,6 @@ function updateSubmitBtn(){
   document.getElementById('btnSubmit').disabled = !(selWorker && selToy && (parseInt(qtyInput.value)||0) >= 1);
 }
 
-async function refreshTags(){
-  const workers = await getDistinct('worker');
-  const toyTypes = await getDistinct('toyType');
-  renderTagRow('workerTags', workers, 'worker');
-  renderTagRow('toyTags', toyTypes, 'toy');
-}
 
 function renderTagRow(containerId, items, type){
   const el = document.getElementById(containerId);
@@ -524,7 +545,7 @@ function showModal(title, placeholder, type){
     e.preventDefault(); e.stopPropagation();
     const val = document.getElementById('modalInput').value.trim();
     overlay.classList.remove('show');
-    if(val){ if(type === 'worker') selWorker = val; else selToy = val; refreshTags(); updateSubmitBtn(); }
+    if(val){ if(type === 'worker'){ selWorker = val; addLabel('worker', val); } else { selToy = val; addLabel('toy', val); } refreshTags(); updateSubmitBtn(); }
   });
 }
 
