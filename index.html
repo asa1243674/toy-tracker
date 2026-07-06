@@ -550,9 +550,20 @@ document.getElementById('modal').addEventListener('pointerup', function(e){
 });
 
 // ============ INIT ============
-refreshTags();
-refreshFilterOptions();
-refreshExportPreview();
+(async function init(){
+  // Always show tags immediately (empty state) so UI isn't stuck blank
+  renderTagRow('workerTags', [], 'worker');
+  renderTagRow('toyTags', [], 'toy');
+  try {
+    await refreshTags();
+    await refreshFilterOptions();
+    await refreshExportPreview();
+  } catch(e){
+    // If DB fails, tags still show with "+ 添加" buttons thanks to the fallback above
+    document.getElementById('workerTags').innerHTML = '<span class="tag add" data-action="add" data-type="worker">+ 添加工人</span><span class="tag-hint">点击上方按钮添加第一个工人</span>';
+    document.getElementById('toyTags').innerHTML = '<span class="tag add" data-action="add" data-type="toy">+ 添加种类</span><span class="tag-hint">点击上方按钮添加第一个种类</span>';
+  }
+})();
 recordDate.value = today();
 recordDateLabel.textContent = today();
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(() => {}); }
