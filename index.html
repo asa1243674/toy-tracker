@@ -148,6 +148,15 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
     </div>
     <div class="export-preview" id="exportPreview">请选择日期范围</div>
     <button class="btn-primary" id="btnExport" disabled>📥 导出 Excel</button>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">☁️ 同步到电脑 Excel (Google Sheets)</div>
+      <p style="font-size:12px;color:#8e8e93;margin-bottom:10px">填入 Apps Script 部署地址，手机记账后自动同步到你的电脑表格</p>
+      <input type="text" id="syncUrl" placeholder="https://script.google.com/macros/s/xxx/exec" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:8px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-primary" id="btnSaveSync" style="flex:1;padding:10px;font-size:14px">💾 保存设置</button>
+        <span id="syncStatus" style="font-size:12px;color:#8e8e93"></span>
+      </div>
+    </div>
   </div>
 
   <!-- ===== TAB BAR ===== -->
@@ -260,6 +269,22 @@ try { workerLabels = JSON.parse(localStorage.getItem('tt_workers') || '[]'); } c
 try { toyLabels = JSON.parse(localStorage.getItem('tt_toys') || '[]'); } catch(e){}
 
 function saveLabels(){ try { localStorage.setItem('tt_workers', JSON.stringify(workerLabels)); localStorage.setItem('tt_toys', JSON.stringify(toyLabels)); } catch(e){} }
+
+// ============ GOOGLE SHEETS SYNC ============
+var syncUrl = localStorage.getItem('tt_sync_url') || '';
+async function syncToSheet(worker, toyType, quantity, date){
+  if(!syncUrl) return;
+  try {
+    const resp = await fetch(syncUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({worker: worker, date: date, toyType: toyType, quantity: quantity})
+    });
+    const result = await resp.json();
+    if(result.success){ console.log('✅ 已同步到 Google Sheets'); return true; }
+    else { console.warn('同步失败:', result.error); return false; }
+  } catch(e){ console.warn('同步请求失败:', e.message); return false; }
+}
 
 function addWorker(name){
   if(!workerLabels.includes(name)){ workerLabels.push(name); workerLabels.sort(); saveLabels(); }
@@ -384,6 +409,7 @@ document.getElementById('btnSubmit').addEventListener('pointerup', async functio
   const qty = parseFloat(qtyInput.value) || 0;
   if(!selWorker || !selToy || qty < 1) return;
   await addRecord(selWorker, selToy, qty, recordDate.value);
+  syncToSheet(selWorker, selToy, qty, recordDate.value);
   showToast('✅ 已记录：' + selWorker + ' · ' + selToy + ' ×' + qty);
   if(navigator.vibrate) navigator.vibrate(20);
   renderAllTags();
@@ -582,6 +608,22 @@ function showConfirm(msg, onConfirm){
 document.getElementById('modal').addEventListener('pointerup', function(e){
   if(e.target === this) this.classList.remove('show');
 });
+
+// ============ SYNC SETTINGS ============
+(function(){
+  const inp = document.getElementById('syncUrl');
+  const status = document.getElementById('syncStatus');
+  if(syncUrl){ inp.value = syncUrl; status.textContent = '✅ 已配置'; }
+  document.getElementById('btnSaveSync').addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation();
+    const val = inp.value.trim();
+    if(!val){ localStorage.removeItem('tt_sync_url'); syncUrl = ''; status.textContent = ''; showToast('已清除同步设置'); return; }
+    if(!val.startsWith('https://script.google.com/')){ showToast('⚠️ 请输入有效的 Apps Script 地址'); return; }
+    localStorage.setItem('tt_sync_url', val); syncUrl = val;
+    status.textContent = '✅ 已配置';
+    showToast('✅ 同步设置已保存');
+  });
+})();
 
 // ============ INIT ============
 (async function init(){
