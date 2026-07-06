@@ -254,31 +254,44 @@ async function dbCount(){
 }
 function escapeHtml(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
-// ============ LABELS (persisted to localStorage) ============
-function getLabels(type){
-  try { return JSON.parse(localStorage.getItem('toytracker_' + type) || '[]'); }
-  catch(e){ return []; }
+// ============ LABELS (in-memory + localStorage backup) ============
+var workerLabels = [], toyLabels = [];
+try { workerLabels = JSON.parse(localStorage.getItem('tt_workers') || '[]'); } catch(e){}
+try { toyLabels = JSON.parse(localStorage.getItem('tt_toys') || '[]'); } catch(e){}
+
+function saveLabels(){ try { localStorage.setItem('tt_workers', JSON.stringify(workerLabels)); localStorage.setItem('tt_toys', JSON.stringify(toyLabels)); } catch(e){} }
+
+function addWorker(name){
+  if(!workerLabels.includes(name)){ workerLabels.push(name); workerLabels.sort(); saveLabels(); }
+  selWorker = name;
+  renderAllTags();
+  updateSubmitBtn();
 }
-function addLabel(type, name){
-  const list = getLabels(type);
-  if(!list.includes(name)){ list.push(name); list.sort(); }
-  localStorage.setItem('toytracker_' + type, JSON.stringify(list));
-  return list;
+function addToy(name){
+  if(!toyLabels.includes(name)){ toyLabels.push(name); toyLabels.sort(); saveLabels(); }
+  selToy = name;
+  renderAllTags();
+  updateSubmitBtn();
 }
-function removeLabel(type, name){
-  const list = getLabels(type).filter(n => n !== name);
-  localStorage.setItem('toytracker_' + type, JSON.stringify(list));
-  return list;
+function rmLabel(type, name){
+  if(type === 'worker'){ workerLabels = workerLabels.filter(n => n !== name); if(selWorker === name) selWorker = null; }
+  else { toyLabels = toyLabels.filter(n => n !== name); if(selToy === name) selToy = null; }
+  saveLabels();
+  renderAllTags();
+  updateSubmitBtn();
 }
 
-async function refreshTags(){
-  // Merge localStorage labels + DB distinct values
-  const dbWorkers = await getDistinct('worker');
-  const dbToys = await getDistinct('toyType');
-  const workers = [...new Set([...getLabels('worker'), ...dbWorkers])].sort();
-  const toyTypes = [...new Set([...getLabels('toy'), ...dbToys])].sort();
+async function renderAllTags(){
+  // Merge in-memory + DB distinct
+  var dbWorkers = [], dbToys = [];
+  try { dbWorkers = await getDistinct('worker'); } catch(e){}
+  try { dbToys = await getDistinct('toyType'); } catch(e){}
+  var wSet = {}; workerLabels.forEach(function(w){ wSet[w] = true; }); dbWorkers.forEach(function(w){ wSet[w] = true; });
+  var tSet = {}; toyLabels.forEach(function(t){ tSet[t] = true; }); dbToys.forEach(function(t){ tSet[t] = true; });
+  var workers = Object.keys(wSet).sort();
+  var toys = Object.keys(tSet).sort();
   renderTagRow('workerTags', workers, 'worker');
-  renderTagRow('toyTags', toyTypes, 'toy');
+  renderTagRow('toyTags', toys, 'toy');
 }
 
 // ============ TAB 1: 记账 ============
@@ -337,7 +350,7 @@ document.addEventListener('pointerup', function(e){
     showConfirm(`确定删除${label}"${val}"？<br><small style="color:#999">不会影响已有记录</small>`, () => {
       if(type === 'worker' && selWorker === val) selWorker = null;
       if(type === 'toy' && selToy === val) selToy = null;
-      refreshTags();
+      renderAllTags();
       updateSubmitBtn();
     });
     return;
@@ -352,7 +365,7 @@ document.addEventListener('pointerup', function(e){
   const val = tag.dataset.value;
   if(type === 'worker'){ selWorker = selWorker === val ? null : val; }
   else if(type === 'toy'){ selToy = selToy === val ? null : val; }
-  refreshTags();
+  renderAllTags();
   updateSubmitBtn();
 });
 
@@ -373,7 +386,7 @@ document.getElementById('btnSubmit').addEventListener('pointerup', async functio
   await addRecord(selWorker, selToy, qty, recordDate.value);
   showToast('✅ 已记录：' + selWorker + ' · ' + selToy + ' ×' + qty);
   if(navigator.vibrate) navigator.vibrate(20);
-  refreshTags();
+  renderAllTags();
   updateSubmitBtn();
 });
 
@@ -453,7 +466,7 @@ document.addEventListener('pointerup', function(e){
     showConfirm('确定删除这条记录？', async () => {
       await deleteRecord(id);
       refreshRecordList();
-      refreshTags();
+      renderAllTags();
       swipedItem = null;
     });
     return;
@@ -508,7 +521,7 @@ document.querySelectorAll('.tab-item').forEach(btn => {
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
     if(btn.dataset.tab === 'list'){ refreshFilterOptions(); refreshRecordList(); }
     if(btn.dataset.tab === 'export') refreshExportPreview();
-    if(btn.dataset.tab === 'record') refreshTags();
+    if(btn.dataset.tab === 'record') renderAllTags();
   });
 });
 
@@ -545,7 +558,7 @@ function showModal(title, placeholder, type){
     e.preventDefault(); e.stopPropagation();
     const val = document.getElementById('modalInput').value.trim();
     overlay.classList.remove('show');
-    if(val){ if(type === 'worker'){ selWorker = val; addLabel('worker', val); } else { selToy = val; addLabel('toy', val); } refreshTags(); updateSubmitBtn(); }
+    if(val){ if(type === 'worker'){ addWorker(val); } else { addToy(val); } renderAllTags(); updateSubmitBtn(); }
   });
 }
 
@@ -576,7 +589,7 @@ document.getElementById('modal').addEventListener('pointerup', function(e){
   renderTagRow('workerTags', [], 'worker');
   renderTagRow('toyTags', [], 'toy');
   try {
-    await refreshTags();
+    await renderAllTags();
     await refreshFilterOptions();
     await refreshExportPreview();
   } catch(e){
