@@ -8,8 +8,15 @@
 <meta name="theme-color" content="#1a5fdc">
 <link rel="manifest" href="manifest.json">
 <title>玩具计件记账</title>
-<script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.min.js"></script>
+<!-- No external dependencies: Dexie replaced with native IndexedDB wrapper below -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+// Fallback: if jsdelivr blocked, try bootcdn
+if(typeof XLSX === 'undefined'){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.bootcdn.net/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  document.head.appendChild(s);
+}
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#222;background:#f2f2f7;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -153,24 +160,97 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
 <div class="modal-overlay" id="modal"><div class="modal-box" id="modalBox"></div></div>
 
 <script>
-// ============ DATABASE ============
-const db = new Dexie('ToyTracker');
-db.version(1).stores({ records: '++id, worker, toyType, date, quantity, createdAt' });
+// ============ DATABASE (native IndexedDB, no CDN needed) ============
+const DB_NAME = 'ToyTracker', DB_STORE = 'records';
+let _db = null;
+function _openDB(){
+  return new Promise((resolve, reject) => {
+    if(_db){ resolve(_db); return; }
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = function(e){
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(DB_STORE)){
+        const store = db.createObjectStore(DB_STORE, { keyPath: 'id', autoIncrement: true });
+        store.createIndex('worker', 'worker', { unique: false });
+        store.createIndex('toyType', 'toyType', { unique: false });
+        store.createIndex('date', 'date', { unique: false });
+        store.createIndex('createdAt', 'createdAt', { unique: false });
+      }
+    };
+    req.onsuccess = function(e){ _db = e.target.result; resolve(_db); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
 function today(){ return new Date().toISOString().slice(0,10); }
 async function addRecord(worker, toyType, quantity, date){
-  return db.records.add({ worker, toyType, quantity, date: date || today(), createdAt: new Date().toISOString() });
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    const store = tx.objectStore(DB_STORE);
+    const rec = { worker, toyType, quantity, date: date || today(), createdAt: new Date().toISOString() };
+    const req = store.add(rec);
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(){ reject(req.error); };
+  });
 }
 async function queryRecords({ worker, toyType, date, dateFrom, dateTo } = {}){
-  let arr = await db.records.orderBy('createdAt').reverse().toArray();
-  if(worker) arr = arr.filter(r => r.worker === worker);
-  if(toyType) arr = arr.filter(r => r.toyType === toyType);
-  if(date) arr = arr.filter(r => r.date === date);
-  if(dateFrom) arr = arr.filter(r => r.date >= dateFrom);
-  if(dateTo) arr = arr.filter(r => r.date <= dateTo);
-  return arr;
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const store = tx.objectStore(DB_STORE);
+    const idx = store.index('createdAt');
+    const req = idx.openCursor(null, 'prev');
+    const results = [];
+    req.onsuccess = function(e){
+      const cursor = e.target.result;
+      if(cursor){
+        const r = cursor.value;
+        let match = true;
+        if(worker && r.worker !== worker) match = false;
+        if(toyType && r.toyType !== toyType) match = false;
+        if(date && r.date !== date) match = false;
+        if(dateFrom && r.date < dateFrom) match = false;
+        if(dateTo && r.date > dateTo) match = false;
+        if(match) results.push(r);
+        cursor.continue();
+      } else { resolve(results); }
+    };
+    req.onerror = function(){ reject(req.error); };
+  });
 }
-async function deleteRecord(id){ return db.records.delete(id); }
-async function getDistinct(field){ return (await db.records.orderBy(field).uniqueKeys()).map(k => k); }
+async function deleteRecord(id){
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    const req = tx.objectStore(DB_STORE).delete(id);
+    req.onsuccess = function(){ resolve(); };
+    req.onerror = function(){ reject(req.error); };
+  });
+}
+async function getDistinct(field){
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const store = tx.objectStore(DB_STORE);
+    const idx = store.index(field);
+    const req = idx.openKeyCursor(null, 'nextunique');
+    const keys = [];
+    req.onsuccess = function(e){
+      const cursor = e.target.result;
+      if(cursor){ keys.push(cursor.key); cursor.continue(); }
+      else { resolve(keys); }
+    };
+    req.onerror = function(){ reject(req.error); };
+  });
+}
+async function dbCount(){
+  const db = await _openDB();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(DB_STORE,'readonly').objectStore(DB_STORE).count();
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(){ reject(req.error); };
+  });
+}
 function escapeHtml(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
 // ============ TAB 1: 记账 ============
@@ -302,7 +382,7 @@ async function refreshRecordList(){
   if(records.length === 0){
     listEl.innerHTML = '';
     emptyEl.style.display = 'block';
-    const hasAny = (await db.records.count()) > 0;
+    const hasAny = (await dbCount()) > 0;
     emptyEl.querySelector('p').innerHTML = hasAny ? '筛选结果为空<br>换个条件试试' : '还没有记过账<br>去「记账」页添加吧';
   } else {
     emptyEl.style.display = 'none';
