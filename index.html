@@ -272,18 +272,14 @@ function saveLabels(){ try { localStorage.setItem('tt_workers', JSON.stringify(w
 
 // ============ GOOGLE SHEETS SYNC ============
 var syncUrl = localStorage.getItem('tt_sync_url') || '';
-async function syncToSheet(worker, toyType, quantity, date){
+function syncToSheet(worker, toyType, quantity, date){
   if(!syncUrl) return;
   try {
-    const resp = await fetch(syncUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({worker: worker, date: date, toyType: toyType, quantity: quantity})
-    });
-    const result = await resp.json();
-    if(result.success){ console.log('✅ 已同步到 Google Sheets'); return true; }
-    else { console.warn('同步失败:', result.error); return false; }
-  } catch(e){ console.warn('同步请求失败:', e.message); return false; }
+    var data = JSON.stringify({worker: worker, date: date, toyType: toyType, quantity: quantity});
+    var blob = new Blob([data], {type: 'text/plain'});
+    var ok = navigator.sendBeacon(syncUrl, blob);
+    if(ok){ console.log('📤 同步请求已发送'); } else { console.warn('发送失败'); }
+  } catch(e){ console.warn('同步失败:', e.message); }
 }
 
 function addWorker(name){
