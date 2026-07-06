@@ -111,7 +111,7 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
       <div class="card-title">🔢 数量</div>
       <div class="quantity-row">
         <button class="qty-btn" id="qtyMinus">−</button>
-        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" inputmode="numeric">
+        <input type="number" class="qty-input" id="qtyInput" value="1" min="0.1" step="0.1" inputmode="decimal">
         <button class="qty-btn" id="qtyPlus">+</button>
       </div>
     </div>
@@ -304,7 +304,7 @@ recordDate.addEventListener('change', () => { recordDateLabel.textContent = reco
 const qtyInput = document.getElementById('qtyInput');
 
 function updateSubmitBtn(){
-  document.getElementById('btnSubmit').disabled = !(selWorker && selToy && (parseInt(qtyInput.value)||0) >= 1);
+  document.getElementById('btnSubmit').disabled = !(selWorker && selToy && (parseFloat(qtyInput.value)||0) >= 0.1);
 }
 
 
@@ -371,17 +371,17 @@ document.addEventListener('pointerup', function(e){
 
 document.getElementById('qtyMinus').addEventListener('pointerup', function(e){
   e.preventDefault(); e.stopPropagation();
-  const v = parseInt(qtyInput.value) || 1; if(v > 1) qtyInput.value = v - 1; updateSubmitBtn();
+  const v = parseFloat(qtyInput.value) || 1; if(v > 0.1) qtyInput.value = v - 1; updateSubmitBtn();
 });
 document.getElementById('qtyPlus').addEventListener('pointerup', function(e){
   e.preventDefault(); e.stopPropagation();
-  qtyInput.value = (parseInt(qtyInput.value) || 1) + 1; updateSubmitBtn();
+  qtyInput.value = (parseFloat(qtyInput.value) || 1) + 1; updateSubmitBtn();
 });
 qtyInput.addEventListener('input', updateSubmitBtn);
 
 document.getElementById('btnSubmit').addEventListener('pointerup', async function(e){
   e.preventDefault(); e.stopPropagation();
-  const qty = parseInt(qtyInput.value) || 0;
+  const qty = parseFloat(qtyInput.value) || 0;
   if(!selWorker || !selToy || qty < 1) return;
   await addRecord(selWorker, selToy, qty, recordDate.value);
   showToast('✅ 已记录：' + selWorker + ' · ' + selToy + ' ×' + qty);
