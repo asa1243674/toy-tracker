@@ -274,12 +274,13 @@ function saveLabels(){ try { localStorage.setItem('tt_workers', JSON.stringify(w
 var syncUrl = localStorage.getItem('tt_sync_url') || '';
 function syncToSheet(worker, toyType, quantity, date){
   if(!syncUrl) return;
-  try {
-    var data = JSON.stringify({worker: worker, date: date, toyType: toyType, quantity: quantity});
-    var blob = new Blob([data], {type: 'text/plain'});
-    var ok = navigator.sendBeacon(syncUrl, blob);
-    if(ok){ console.log('📤 同步请求已发送'); } else { console.warn('发送失败'); }
-  } catch(e){ console.warn('同步失败:', e.message); }
+  var params = '?worker=' + encodeURIComponent(worker) +
+    '&toy=' + encodeURIComponent(toyType) +
+    '&qty=' + encodeURIComponent(quantity) +
+    '&date=' + encodeURIComponent(date);
+  var img = new Image();
+  img.src = syncUrl + params;
+  // 忽略结果，img 加载成功即写入成功
 }
 
 function addWorker(name){
