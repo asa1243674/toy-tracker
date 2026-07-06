@@ -14,28 +14,29 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#222;background:#f2f2f7;-webkit-tap-highlight-color:transparent;user-select:none}
 #app{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.tab-content{flex:1;overflow-y:auto;padding:16px;padding-bottom:20px;display:none}
+.tab-content{flex:1;overflow-y:auto;padding:16px;padding-bottom:20px;display:none;-webkit-overflow-scrolling:touch}
 .tab-content.active{display:block}
 .tab-bar{display:flex;border-top:1px solid #e5e5ea;background:#fafafa;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0)}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 6px;font-size:11px;color:#8e8e93;cursor:pointer;transition:color 0.2s;border:none;background:none}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 6px;font-size:11px;color:#8e8e93;cursor:pointer;transition:color 0.2s;border:none;background:none;touch-action:manipulation}
 .tab-item.active{color:#1a5fdc}
 .tab-item .icon{font-size:22px;line-height:1}
 .card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .card-title{font-size:13px;color:#8e8e93;margin-bottom:10px}
-.tag-row{display:flex;gap:8px;flex-wrap:wrap}
-.tag{padding:8px 18px;border-radius:20px;font-size:14px;background:#f0f0f5;color:#555;cursor:pointer;border:none;transition:all 0.15s;font-family:inherit}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;padding:10px 18px;border-radius:20px;font-size:15px;background:#f0f0f5;color:#555;cursor:pointer;border:none;transition:all 0.15s;font-family:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent;line-height:1.3}
 .tag.selected{background:#eef3fc;color:#1a5fdc;font-weight:600}
 .tag.add{border:1.5px dashed #c7c7cc;background:transparent;color:#999}
-.tag.add:active{background:#f5f5f5}
+.tag.add:active,.tag:active{background:#e0e0eb}
+.tag-hint{color:#c7c7cc;font-size:13px;padding:4px}
 .quantity-row{display:flex;align-items:center;justify-content:center;gap:28px}
-.qty-btn{width:48px;height:48px;border-radius:50%;border:2px solid #ddd;background:#fff;font-size:26px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1}
+.qty-btn{width:48px;height:48px;border-radius:50%;border:2px solid #ddd;background:#fff;font-size:26px;cursor:pointer;color:#555;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1;touch-action:manipulation}
 .qty-btn:active{background:#f0f0f5}
-.qty-input{font-size:40px;font-weight:700;width:80px;text-align:center;border:none;background:transparent;font-family:inherit;outline:none;-moz-appearance:textfield}
+.qty-input{font-size:40px;font-weight:700;width:80px;text-align:center;border:none;background:transparent;font-family:inherit;outline:none;-moz-appearance:textfield;line-height:1.2}
 .qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.btn-primary{width:100%;padding:16px;background:#1a5fdc;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit}
+.btn-primary{width:100%;padding:16px;background:#1a5fdc;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit;touch-action:manipulation}
 .btn-primary:active{background:#1551c0}
 .btn-primary:disabled{background:#b0c4e8;cursor:default}
-.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#e8f5e9;color:#2e7d32;padding:10px 22px;border-radius:20px;font-size:14px;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:12px 24px;border-radius:24px;font-size:14px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.2)}
 .toast.show{opacity:1}
 .filter-row{display:flex;gap:6px;margin-bottom:12px}
 .filter-row select,.filter-row input{flex:1;padding:8px 8px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;color:#333;background:#fff;font-family:inherit;min-width:0}
@@ -43,7 +44,7 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
 .summary-row .total{color:#1a5fdc;font-weight:600}
 .record-list{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .date-group-header{background:#f9f9fc;padding:10px 16px;font-size:12px;color:#8e8e93;font-weight:600}
-.record-item{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid #f5f5f5;position:relative;overflow:hidden}
+.record-item{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid #f5f5f5;position:relative;overflow:hidden;touch-action:pan-y}
 .record-item:last-child{border-bottom:none}
 .record-info{flex:1;min-width:0}
 .record-info .ri-top{font-weight:600;margin-bottom:2px}
@@ -61,18 +62,19 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
 .export-date-row input{flex:1;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit}
 .export-preview{text-align:center;font-size:14px;color:#8e8e93;margin-bottom:16px}
 .export-preview b{color:#111;font-size:20px}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:400;display:none;align-items:flex-end;justify-content:center;padding-bottom:40px}
 .modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:16px;padding:24px;width:300px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.15)}
+.modal-box{background:#fff;border-radius:16px;padding:24px;width:320px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.2);margin:0 16px}
 .modal-box h3{font-size:17px;margin-bottom:8px}
 .modal-box p{font-size:14px;color:#8e8e93;margin-bottom:20px}
-.modal-box input{width:100%;padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;font-size:15px;margin-bottom:16px;font-family:inherit}
+.modal-box input{width:100%;padding:12px 14px;border:1px solid #e0e0e0;border-radius:8px;font-size:16px;margin-bottom:16px;font-family:inherit;outline:none;-webkit-appearance:none}
+.modal-box input:focus{border-color:#1a5fdc}
 .modal-btns{display:flex;gap:10px}
-.modal-btns button{flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+.modal-btns button{flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;border:none;touch-action:manipulation}
 .modal-btns .btn-cancel{background:#f0f0f5;color:#555}
 .modal-btns .btn-danger{background:#ef4444;color:#fff}
 .modal-btns .btn-confirm{background:#1a5fdc;color:#fff}
-.date-display{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:14px;cursor:pointer}
+.date-display{display:flex;align-items:center;justify-content:space-between;background:#fff;padding:12px 16px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-bottom:14px;cursor:pointer;touch-action:manipulation}
 .date-display span{font-weight:600}
 .date-display .arrow{color:#8e8e93;font-size:14px}
 .date-input-wrap{position:relative}
@@ -101,7 +103,7 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
       <div class="card-title">🔢 数量</div>
       <div class="quantity-row">
         <button class="qty-btn" id="qtyMinus">−</button>
-        <input type="number" class="qty-input" id="qtyInput" value="1" min="1">
+        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" inputmode="numeric">
         <button class="qty-btn" id="qtyPlus">+</button>
       </div>
     </div>
@@ -154,13 +156,10 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans SC','PingFang SC','Mi
 // ============ DATABASE ============
 const db = new Dexie('ToyTracker');
 db.version(1).stores({ records: '++id, worker, toyType, date, quantity, createdAt' });
-
 function today(){ return new Date().toISOString().slice(0,10); }
-
 async function addRecord(worker, toyType, quantity, date){
   return db.records.add({ worker, toyType, quantity, date: date || today(), createdAt: new Date().toISOString() });
 }
-
 async function queryRecords({ worker, toyType, date, dateFrom, dateTo } = {}){
   let arr = await db.records.orderBy('createdAt').reverse().toArray();
   if(worker) arr = arr.filter(r => r.worker === worker);
@@ -170,19 +169,22 @@ async function queryRecords({ worker, toyType, date, dateFrom, dateTo } = {}){
   if(dateTo) arr = arr.filter(r => r.date <= dateTo);
   return arr;
 }
-
 async function deleteRecord(id){ return db.records.delete(id); }
-
 async function getDistinct(field){ return (await db.records.orderBy(field).uniqueKeys()).map(k => k); }
+function escapeHtml(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
 
 // ============ TAB 1: 记账 ============
 let selWorker = null, selToy = null;
-
 const recordDate = document.getElementById('recordDate');
 const recordDateLabel = document.getElementById('recordDateLabel');
 recordDate.value = today();
 recordDateLabel.textContent = today();
 recordDate.addEventListener('change', () => { recordDateLabel.textContent = recordDate.value; });
+const qtyInput = document.getElementById('qtyInput');
+
+function updateSubmitBtn(){
+  document.getElementById('btnSubmit').disabled = !(selWorker && selToy && (parseInt(qtyInput.value)||0) >= 1);
+}
 
 async function refreshTags(){
   const workers = await getDistinct('worker');
@@ -194,16 +196,51 @@ async function refreshTags(){
 function renderTagRow(containerId, items, type){
   const el = document.getElementById(containerId);
   const selected = type === 'worker' ? selWorker : selToy;
-  el.innerHTML = items.map(item =>
-    `<button class="tag${item === selected ? ' selected' : ''}" data-value="${escapeHtml(item)}" data-type="${type}">${escapeHtml(item)}</button>`
-  ).join('') + `<button class="tag add" data-action="add" data-type="${type}">+ 添加</button>`;
+  const label = type === 'worker' ? '工人' : '种类';
+  let html = items.map(item =>
+    `<span class="tag${item === selected ? ' selected' : ''}" data-value="${escapeHtml(item)}" data-type="${type}">${escapeHtml(item)}</span>`
+  ).join('');
+  html += `<span class="tag add" data-action="add" data-type="${type}">+ 添加${label}</span>`;
+  if(items.length === 0) html += `<span class="tag-hint">还没有${label}，点「+ 添加」创建</span>`;
+  el.innerHTML = html;
 }
 
-function escapeHtml(s){ const d=document.createElement('div');d.textContent=s;return d.innerHTML; }
-
-document.addEventListener('click', function(e){
+// Unified pointer handler: tap to select, long-press (>500ms) to delete tag
+let ptrTarget = null, ptrStart = 0, ptrMoved = false;
+document.addEventListener('pointerdown', function(e){
   const tag = e.target.closest('.tag');
-  if(!tag) return;
+  if(!tag){ ptrTarget = null; return; }
+  ptrTarget = tag;
+  ptrStart = Date.now();
+  ptrMoved = false;
+}, {passive: true});
+
+document.addEventListener('pointermove', function(e){
+  if(!ptrTarget) return;
+  if(Math.abs(e.movementX || 0) > 5 || Math.abs(e.movementY || 0) > 5) ptrMoved = true;
+}, {passive: true});
+
+document.addEventListener('pointerup', function(e){
+  if(!ptrTarget) return;
+  const tag = ptrTarget;
+  const elapsed = Date.now() - ptrStart;
+  ptrTarget = null;
+
+  if(ptrMoved) return;
+  if(elapsed > 500 && tag.dataset.value && tag.dataset.action !== 'add'){
+    // Long press
+    const val = tag.dataset.value;
+    const type = tag.dataset.type;
+    const label = type === 'worker' ? '工人' : '种类';
+    showConfirm(`确定删除${label}"${val}"？<br><small style="color:#999">不会影响已有记录</small>`, () => {
+      if(type === 'worker' && selWorker === val) selWorker = null;
+      if(type === 'toy' && selToy === val) selToy = null;
+      refreshTags();
+      updateSubmitBtn();
+    });
+    return;
+  }
+
   const action = tag.dataset.action;
   const type = tag.dataset.type;
   if(action === 'add'){
@@ -217,48 +254,26 @@ document.addEventListener('click', function(e){
   updateSubmitBtn();
 });
 
-const qtyInput = document.getElementById('qtyInput');
-document.getElementById('qtyMinus').addEventListener('click', () => {
+document.getElementById('qtyMinus').addEventListener('pointerup', function(e){
+  e.preventDefault(); e.stopPropagation();
   const v = parseInt(qtyInput.value) || 1; if(v > 1) qtyInput.value = v - 1; updateSubmitBtn();
 });
-document.getElementById('qtyPlus').addEventListener('click', () => {
+document.getElementById('qtyPlus').addEventListener('pointerup', function(e){
+  e.preventDefault(); e.stopPropagation();
   qtyInput.value = (parseInt(qtyInput.value) || 1) + 1; updateSubmitBtn();
 });
-
-function updateSubmitBtn(){
-  document.getElementById('btnSubmit').disabled = !(selWorker && selToy && (parseInt(qtyInput.value)||0) >= 1);
-}
 qtyInput.addEventListener('input', updateSubmitBtn);
 
-document.getElementById('btnSubmit').addEventListener('click', async () => {
+document.getElementById('btnSubmit').addEventListener('pointerup', async function(e){
+  e.preventDefault(); e.stopPropagation();
   const qty = parseInt(qtyInput.value) || 0;
   if(!selWorker || !selToy || qty < 1) return;
   await addRecord(selWorker, selToy, qty, recordDate.value);
-  showToast(`✅ 已记录：${selWorker} · ${selToy} ×${qty}`);
+  showToast('✅ 已记录：' + selWorker + ' · ' + selToy + ' ×' + qty);
   if(navigator.vibrate) navigator.vibrate(20);
   refreshTags();
   updateSubmitBtn();
 });
-
-// 长按标签删除
-let longPressTimer;
-document.addEventListener('pointerdown', function(e){
-  const tag = e.target.closest('.tag:not(.add)');
-  if(!tag) return;
-  longPressTimer = setTimeout(() => {
-    const val = tag.dataset.value;
-    const type = tag.dataset.type;
-    const label = type === 'worker' ? '工人' : '种类';
-    showConfirm(`确定删除${label}"${val}"？<br><small style="color:#999">不会影响已有记录</small>`, () => {
-      if(type === 'worker' && selWorker === val) selWorker = null;
-      if(type === 'toy' && selToy === val) selToy = null;
-      refreshTags();
-      updateSubmitBtn();
-    });
-  }, 600);
-});
-document.addEventListener('pointerup', () => clearTimeout(longPressTimer));
-document.addEventListener('pointermove', () => clearTimeout(longPressTimer));
 
 // ============ TAB 2: 记录 ============
 const filterWorker = document.getElementById('filterWorker');
@@ -280,8 +295,8 @@ async function refreshRecordList(){
   if(filterDate.value) filters.date = filterDate.value;
   const records = await queryRecords(filters);
   const totalQty = records.reduce((s,r) => s + r.quantity, 0);
-  document.getElementById('filterTotal').textContent = `合计：${totalQty} 件`;
-  document.getElementById('filterCount').textContent = `共 ${records.length} 条`;
+  document.getElementById('filterTotal').textContent = '合计：' + totalQty + ' 件';
+  document.getElementById('filterCount').textContent = '共 ' + records.length + ' 条';
   const listEl = document.getElementById('recordList');
   const emptyEl = document.getElementById('emptyState');
   if(records.length === 0){
@@ -297,16 +312,16 @@ async function refreshRecordList(){
       groups[r.date].push(r);
     });
     listEl.innerHTML = Object.keys(groups).sort().reverse().map(date =>
-      `<div class="date-group-header">${date}</div>` +
+      '<div class="date-group-header">' + date + '</div>' +
       groups[date].map(r =>
-        `<div class="record-item" data-id="${r.id}">
-          <div class="record-info">
-            <div class="ri-top"><span class="ri-worker">${escapeHtml(r.worker)}</span> <span class="ri-toy">· ${escapeHtml(r.toyType)}</span></div>
-            <div class="ri-time">${new Date(r.createdAt).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}</div>
-          </div>
-          <span class="record-qty">×${r.quantity}</span>
-          <button class="record-delete-btn" data-delete="${r.id}">删除</button>
-        </div>`
+        '<div class="record-item" data-id="' + r.id + '">' +
+          '<div class="record-info">' +
+            '<div class="ri-top"><span class="ri-worker">' + escapeHtml(r.worker) + '</span> <span class="ri-toy">· ' + escapeHtml(r.toyType) + '</span></div>' +
+            '<div class="ri-time">' + new Date(r.createdAt).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}) + '</div>' +
+          '</div>' +
+          '<span class="record-qty">×' + r.quantity + '</span>' +
+          '<button class="record-delete-btn" data-delete="' + r.id + '">删除</button>' +
+        '</div>'
       ).join('')
     ).join('');
     initSwipe();
@@ -316,21 +331,22 @@ async function refreshRecordList(){
 let swipedItem = null;
 function initSwipe(){
   document.querySelectorAll('.record-item').forEach(item => {
-    let startX = 0;
-    item.addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
+    let sx = 0;
+    item.addEventListener('touchstart', function(e){
+      sx = e.touches[0].clientX;
       if(swipedItem && swipedItem !== item){ swipedItem.classList.remove('swiped'); swipedItem = null; }
     }, {passive: true});
-    item.addEventListener('touchmove', e => {
-      const dx = e.touches[0].clientX - startX;
+    item.addEventListener('touchmove', function(e){
+      const dx = e.touches[0].clientX - sx;
       if(dx < -30) item.classList.add('swiped');
       else if(dx > 30) item.classList.remove('swiped');
     }, {passive: true});
   });
 }
-document.addEventListener('click', e => {
+document.addEventListener('pointerup', function(e){
   const delBtn = e.target.closest('[data-delete]');
   if(delBtn){
+    e.preventDefault(); e.stopPropagation();
     const id = parseInt(delBtn.dataset.delete);
     showConfirm('确定删除这条记录？', async () => {
       await deleteRecord(id);
@@ -353,7 +369,6 @@ const exportFrom = document.getElementById('exportDateFrom');
 const exportTo = document.getElementById('exportDateTo');
 const exportPreview = document.getElementById('exportPreview');
 const btnExport = document.getElementById('btnExport');
-
 const now = new Date();
 exportFrom.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
 exportTo.value = today();
@@ -363,27 +378,28 @@ async function refreshExportPreview(){
   if(!from || !to){ exportPreview.textContent = '请选择日期范围'; btnExport.disabled = true; return; }
   const records = await queryRecords({ dateFrom: from, dateTo: to });
   const total = records.reduce((s,r) => s + r.quantity, 0);
-  exportPreview.innerHTML = `共 <b>${records.length}</b> 条记录 · 合计 <b>${total}</b> 件`;
+  exportPreview.innerHTML = '共 <b>' + records.length + '</b> 条记录 · 合计 <b>' + total + '</b> 件';
   btnExport.disabled = records.length === 0;
 }
-
 [exportFrom, exportTo].forEach(el => el.addEventListener('change', refreshExportPreview));
 refreshExportPreview();
 
-btnExport.addEventListener('click', async () => {
+btnExport.addEventListener('pointerup', async function(e){
+  e.preventDefault(); e.stopPropagation();
   const records = await queryRecords({ dateFrom: exportFrom.value, dateTo: exportTo.value });
   const data = records.map(r => ({ '工人': r.worker, '日期': r.date, '玩具种类': r.toyType, '数量': r.quantity }));
   const ws = XLSX.utils.json_to_sheet(data);
   ws['!cols'] = [{wch:10},{wch:14},{wch:14},{wch:8}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '记账数据');
-  XLSX.writeFile(wb, `玩具计件_${exportFrom.value}_${exportTo.value}.xlsx`);
-  showToast(`✅ 已导出 ${records.length} 条记录`);
+  XLSX.writeFile(wb, '玩具计件_' + exportFrom.value + '_' + exportTo.value + '.xlsx');
+  showToast('✅ 已导出 ' + records.length + ' 条记录');
 });
 
 // ============ TAB SWITCHING ============
 document.querySelectorAll('.tab-item').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation();
     document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
@@ -400,45 +416,57 @@ function showToast(msg){
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(el._timeout);
-  el._timeout = setTimeout(() => el.classList.remove('show'), 2000);
+  el._timeout = setTimeout(() => el.classList.remove('show'), 1800);
 }
 
 // ============ MODAL ============
 function showModal(title, placeholder, type){
   const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <h3>${title}</h3>
-    <input type="text" id="modalInput" placeholder="${placeholder}" autocomplete="off">
-    <div class="modal-btns">
-      <button class="btn-cancel" id="modalCancel">取消</button>
-      <button class="btn-confirm" id="modalConfirm">确定</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-  const inp = document.getElementById('modalInput');
-  inp.focus();
-  document.getElementById('modalCancel').addEventListener('click', () => document.getElementById('modal').classList.remove('show'));
-  document.getElementById('modalConfirm').addEventListener('click', () => {
-    const val = inp.value.trim();
-    document.getElementById('modal').classList.remove('show');
+  box.innerHTML =
+    '<h3>' + title + '</h3>' +
+    '<input type="text" id="modalInput" placeholder="' + placeholder + '" autocomplete="off" inputmode="text">' +
+    '<div class="modal-btns">' +
+      '<button class="btn-cancel" id="modalCancel">取消</button>' +
+      '<button class="btn-confirm" id="modalConfirm">确定</button>' +
+    '</div>';
+  const overlay = document.getElementById('modal');
+  overlay.classList.add('show');
+  // Force reflow then focus (mobile requires this)
+  setTimeout(() => {
+    const inp = document.getElementById('modalInput');
+    if(inp){ inp.focus(); inp.click(); }
+  }, 100);
+  document.getElementById('modalCancel').addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation(); overlay.classList.remove('show');
+  });
+  document.getElementById('modalConfirm').addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation();
+    const val = document.getElementById('modalInput').value.trim();
+    overlay.classList.remove('show');
     if(val){ if(type === 'worker') selWorker = val; else selToy = val; refreshTags(); updateSubmitBtn(); }
   });
-  inp.addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('modalConfirm').click(); });
 }
 
 function showConfirm(msg, onConfirm){
   const box = document.getElementById('modalBox');
-  box.innerHTML = `
-    <p style="font-size:16px;margin-bottom:20px;line-height:1.6">${msg}</p>
-    <div class="modal-btns">
-      <button class="btn-cancel" id="modalCancel">取消</button>
-      <button class="btn-danger" id="modalConfirm">确定删除</button>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-  document.getElementById('modalCancel').addEventListener('click', () => document.getElementById('modal').classList.remove('show'));
-  document.getElementById('modalConfirm').addEventListener('click', () => { document.getElementById('modal').classList.remove('show'); onConfirm(); });
+  box.innerHTML =
+    '<p style="font-size:16px;margin-bottom:20px;line-height:1.6">' + msg + '</p>' +
+    '<div class="modal-btns">' +
+      '<button class="btn-cancel" id="modalCancel">取消</button>' +
+      '<button class="btn-danger" id="modalConfirm">确定删除</button>' +
+    '</div>';
+  const overlay = document.getElementById('modal');
+  overlay.classList.add('show');
+  document.getElementById('modalCancel').addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation(); overlay.classList.remove('show');
+  });
+  document.getElementById('modalConfirm').addEventListener('pointerup', function(e){
+    e.preventDefault(); e.stopPropagation(); overlay.classList.remove('show'); onConfirm();
+  });
 }
-
-document.getElementById('modal').addEventListener('click', function(e){ if(e.target === this) this.classList.remove('show'); });
+document.getElementById('modal').addEventListener('pointerup', function(e){
+  if(e.target === this) this.classList.remove('show');
+});
 
 // ============ INIT ============
 refreshTags();
@@ -446,7 +474,6 @@ refreshFilterOptions();
 refreshExportPreview();
 recordDate.value = today();
 recordDateLabel.textContent = today();
-
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(() => {}); }
 </script>
 </body>
